@@ -8,18 +8,45 @@
 
 import UIKit
 
-class ViewController: UIViewController {
-
+class ViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource {
+    @IBOutlet weak var collectionView: UICollectionView!
+    private var colors = [ UIColor.redColor(), UIColor.greenColor(), UIColor.blueColor() ]
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        configureNavigationController()
+        
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        
+        let layout = collectionView.collectionViewLayout as! StackLayout
+        layout.willDeleteForegroundItem = {
+            print("willDeleteForegroundItem")
+            self.colors.removeAtIndex(0)
+        }
+        layout.didDeleteForegroundItem = {
+            print("didDeleteForegroundItem")
+            self.colors.append(self.colors[0])
+            self.collectionView.reloadData()
+        }
     }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+    
+    func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return colors.count
     }
+    
+    func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("StackFrame", forIndexPath: indexPath) as! StackFrame
+        cell.prepareForUse()
 
-
+        cell.backgroundColor = colors[indexPath.row]
+        
+        return cell
+    }
+    
+    private func configureNavigationController() {
+        let logo = UIImage(named: "HeaderLogo")!
+        navigationItem.titleView = UIImageView(image: logo)
+    }
 }
 
